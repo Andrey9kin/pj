@@ -5,10 +5,37 @@ from contextlib import closing
 import os
 import sys
 import subprocess
+import jenkins
 import logging
 from tempfile import gettempdir
+import json
 
 logging.basicConfig(level=logging.INFO)
+
+jenkins_url = "http://192.168.99.100:8080"
+job_name = "polly-test"
+
+logging.info("Connect to Jenkins at {}".format(jenkins_url))
+
+server = jenkins.Jenkins(jenkins_url)
+
+logging.info("Get latest build for the job {}".format(job_name))
+last_build_number = server.get_job_info(job_name)['lastCompletedBuild']['number']
+build_info = server.get_job_info(job_name, last_build_number)
+
+repo = ""
+sha1 = ""
+
+for action in build_info['lastCompletedBuild']['actions']:
+    if 'remoteUrls' in action:
+        repo = action['remoteUrls'][0]
+        sha1 = action['lastBuiltRevision']['SHA1']
+
+if repo == "" and sha1 == "":
+    logging.error("Can not get repo and sha1 info for job {}".format(job_name))
+
+logging.info("Jenkins job {} with the build number {} built repo {} sha1 {}".format(job_name, last_build_number, repo, sha1))
+
 text = "Hello world!"
 
 # Create a client using the credentials and region defined in the [adminuser]

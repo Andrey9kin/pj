@@ -1,8 +1,13 @@
 boto3==1.4.2
 botocore==1.4.84
 docutils==0.12
+futures==3.0.5
 jmespath==0.9.0
 PyGithub==1.29
+multi-key-dict==2.0.3
+pbr==1.10.0
 python-dateutil==2.6.0
+python-jenkins==0.4.13
 s3transfer==0.1.9
 six==1.10.0
+wsgiref==0.1.2

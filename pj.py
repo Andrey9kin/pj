@@ -9,6 +9,7 @@ import jenkins
 import logging
 from tempfile import gettempdir
 import json
+import requests
 
 logging.basicConfig(level=logging.INFO)
 
@@ -39,10 +40,19 @@ logging.info("Jenkins job {} with the build number {} built repo {} sha1 {}".for
 github_user = repo.split('/')[-2]
 github_repo = (repo.split('/')[-1]).replace('.git','')
 
-print github_user
-print github_repo
+logging.info("Extracted github user name - {}".format(github_user))
+logging.info("Extracted github repo name - {}".format(github_repo))
 
-text = "Hello world!"
+r = requests.get("https://api.github.com/repos/{}/{}/git/commits/{}".format(github_user, github_repo, sha1))
+response = json.loads(r.text)
+
+github_username = response['author']['name']
+github_commit_message = response['message'].split('\n', 1)[0]
+
+logging.info("Extracted github users name - {}".format(github_username))
+logging.info("Extracted github commit message - {}".format(github_commit_message))
+
+text = "Message for user {}! Message for user {}! Your commit with sha1 {} and commit message {} broke the build number {} for the job {}. Go and fix it! God dammit!".format(github_username, github_username, sha1[:10], github_commit_message, last_build_number, job_name)
 
 # Create a client using the credentials and region defined in the [adminuser]
 # section of the AWS credentials file (~/.aws/credentials).

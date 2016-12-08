@@ -36,6 +36,12 @@ if repo == "" and sha1 == "":
 
 logging.info("Jenkins job {} with the build number {} built repo {} sha1 {}".format(job_name, last_build_number, repo, sha1))
 
+github_user = repo.split('/')[-2]
+github_repo = (repo.split('/')[-1]).replace('.git','')
+
+print github_user
+print github_repo
+
 text = "Hello world!"
 
 # Create a client using the credentials and region defined in the [adminuser]

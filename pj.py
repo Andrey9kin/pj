@@ -1,4 +1,3 @@
-"""Getting Started Example for Python 2.7+/3.3+"""
 from boto3 import Session
 from contextlib import closing
 import os
@@ -6,9 +5,8 @@ import sys
 import jenkins
 import logging
 from tempfile import gettempdir
-import json
-import requests
 import argparse
+from github import Github
 
 jenkins_url = "http://code.praqma.net/ci"
 job_name = "2git-release"
@@ -63,9 +61,10 @@ def get_username_and_repo(repo_url):
 # Return (name, commit message(only first line))
 def get_name_and_commit_msg_from_github(username, repo, sha1):
     logging.debug("Get author name and commmit message from sha1 {} in repo {} of user {}".format(username, repo, sha1))
-    r = requests.get("https://api.github.com/repos/{}/{}/git/commits/{}".format(username, repo, sha1))
-    response = json.loads(r.text)
-    return (response['author']['name'], response['message'].split('\n', 1)[0])
+    github = Github()
+    github_repo = github.get_repo("{}/{}".format(username,repo))
+    commit = github_repo.get_git_commit(sha1)
+    return (commit.author.name, (commit.message).split('\n', 1)[0])
 
 # Retun path to file
 def get_audio_from_polly(account, text, output_dir="", voice="Joanna"):
@@ -112,7 +111,7 @@ def main(argv):
         name, commit_message = get_name_and_commit_msg_from_github(username, repo, sha1)
         logging.info("Extracted name - {}".format(name))
         logging.info("Extracted commit message - {}".format(commit_message))
-        text = "Message for user {}! Message for user {}! Your commit with sha1 {}, and commit message {}, broke the build number {} for the job {}. Go and fix it! God dammit!".format(name, name, sha1[:10], commit_message, build_number, job)
+        text = "Message for user {}! Message for user {}! Your commit with sha1 - {}, and commit message - {}, broke the build number - {} for the job - {}. Go and fix it! God dammit!".format(name, name, sha1[:10], commit_message, build_number, job)
         output = get_audio_from_polly(account, text, output_dir, voice)
         logging.info("Message saved to file {}".format(output))
     except Exception as error:

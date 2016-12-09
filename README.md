@@ -1,7 +1,31 @@
 # Jenkins voice message generator (p - polly, j - jenkins)
 
+## Intro
 This tool reads info from Jenkins job (sha1, result, repo url), gets info about commit author and commit message from GitHub and then generated voice message using Amazon Polly
 
+## Setup
+
+You will need to setup AWS credentials (read more (here)[http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html]) - typically you need to create ~/.aws/config and ~/.aws/credentials
+
+Example
+```
+cat ~/.aws/config
+[default]
+region=us-west-2
+output=json
+cat ~/.aws/credentials
+[default]
+aws_access_key_id=MVIAJIH4LBF7OFDDG676
+aws_secret_access_key=TUmStlp23uIJv4xO7VaL7777MxLhCb0fmdLLN44l
+```
+
+Then clone the repository and run (make sure that you have python virtualenv installed)
+```
+source setup.sh
+```
+
+## Example
+Get message for the latest build for the job polly-test in Jenkins http://192.168.99.100:8080 using AWS account default and then put received message to ~/Downloads
 ```
 python pj.py -a default -o ~/Downloads -u http://192.168.99.100:8080 -j polly-test
 INFO:root:Connect to Jenkins at http://192.168.99.100:8080

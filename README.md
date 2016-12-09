@@ -5,7 +5,7 @@ This tool reads info from Jenkins job (sha1, result, repo url), gets info about 
 
 ## Setup
 
-You will need to setup AWS credentials (read more (here)[http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html]) - typically you need to create ~/.aws/config and ~/.aws/credentials
+You will need to setup AWS credentials (read more [here](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html) - typically you need to create ~/.aws/config and ~/.aws/credentials
 
 Example
 ```

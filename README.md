@@ -1,7 +1,7 @@
 # Jenkins voice message generator (p - polly, j - jenkins)
 
 ## Intro
-This tool reads info from Jenkins job (sha1, result, repo url), gets info about commit author and commit message from GitHub and then generated voice message using Amazon Polly
+This tool reads info from Jenkins job (sha1, result, repo url), gets info about commit author and commit message from GitHub and then generated voice message using [Amazon Polly](https://aws.amazon.com/polly)
 
 ## Setup
 

@@ -29,7 +29,7 @@ def parse_args(args):
     parsed = parser.parse_args()
     return (parsed.debug, parsed.url, parsed.job, parsed.output, parsed.voice, parsed.account)
 
-# Return (repo, sha1, build number)
+# Return (repo, sha1, build number, result)
 def get_info_from_jenkins(jenkins_url, job_name):
     logging.info("Connect to Jenkins at {}".format(jenkins_url))
     repo = ""
@@ -48,7 +48,7 @@ def get_info_from_jenkins(jenkins_url, job_name):
         raise LookupError("Can not get repo and sha1 info for job {}".format(job_name))
 
     logging.info("Jenkins job {} with the build number {} built repo {} sha1 {}".format(job_name, last_build_number, repo, sha1))
-    return (repo, sha1, last_build_number)
+    return (repo, sha1, last_build_number, build_info['lastCompletedBuild']['result'])
 
 # Return (github_user, github_repo)
 def get_username_and_repo(repo_url):
@@ -96,6 +96,21 @@ def get_audio_from_polly(account, text, output_dir="", voice="Joanna"):
         raise KeyError("No AudioStream found in response: {}".format(repsonse))
     return output
 
+# Returns message
+def get_message(name, commit_message, build_number, job, result):
+    message = "Message for user {}! Message for user {}! Your commit with the commit message - {},".format(name, name, commit_message)
+    if result == "FAILURE":
+        message += " broke the build number - {}, for the job - {}. Go and fix it! God dammit!".format(build_number, job)
+    elif result == "SUCCESS":
+        message += " was succesfully built by the job - {}, build number - {}. Well done! Keep it up!".format(job, build_number)
+    elif result == "ABORT":
+        message += " was building by the job - {}, with the build number - {}. But! Someone aborted it!".format(job, build_number)
+    elif result == "UNSTABLE":
+        message += " didn't pass tests in the build number - {}, for the job - {}. Go and fix it! God dammit!".format(build_number, job)
+    else:
+        message += "... hold on! Something happend but I have no idea what! Please check logs!"
+    return message
+
 def main(argv):
     try:
         debug, url, job, output_dir, voice, account = parse_args(argv)
@@ -104,14 +119,14 @@ def main(argv):
         else:
             logging.basicConfig(level=logging.INFO)
 
-        repo_url, sha1, build_number = get_info_from_jenkins(url, job)
+        repo_url, sha1, build_number, result = get_info_from_jenkins(url, job)
         username, repo = get_username_and_repo(repo_url)
         logging.info("Extracted github user name - {}".format(username))
         logging.info("Extracted github repo name - {}".format(repo))
         name, commit_message = get_name_and_commit_msg_from_github(username, repo, sha1)
         logging.info("Extracted name - {}".format(name))
         logging.info("Extracted commit message - {}".format(commit_message))
-        text = "Message for user {}! Message for user {}! Your commit with sha1 - {}, and commit message - {}, broke the build number - {} for the job - {}. Go and fix it! God dammit!".format(name, name, sha1[:10], commit_message, build_number, job)
+        text = get_message(name, commit_message, build_number, job, result)
         output = get_audio_from_polly(account, text, output_dir, voice)
         logging.info("Message saved to file {}".format(output))
     except Exception as error:
